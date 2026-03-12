@@ -25,6 +25,8 @@
 
 Опенсурс аналог [Antigravity в России без VPN и смены региона аккаунта Google](https://github.com/confeden/Antigravity).
 
+<img width="979" height="512" alt="1" src="https://github.com/user-attachments/assets/97b6edbf-4473-4f44-be00-b57e9651c090" />
+
 ---
 # 💰 Поддержать автора
 + **SBER**: `2202 2050 1464 4675`
