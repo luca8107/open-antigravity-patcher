@@ -14,7 +14,6 @@
 </div>
 
 # 🔑 Open AG Patcher
-
 [![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://github.com/AvenCores/open-antigravity-unlock)
 [![GPL-3.0 License](https://img.shields.io/badge/License-GPL--3.0-blue?style=for-the-badge)](./LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/AvenCores/open-antigravity-unlock?style=for-the-badge)](https://github.com/AvenCores/open-antigravity-unlock/stargazers)
@@ -41,6 +40,9 @@
 [**Смотреть в Telegram**](https://t.me/avencoreschat/456321)
 
 </div>
+
+## ⚠️ Ошибка HTTP 500 Internal Server Error
+Если при запросе в Antigravity появляется ошибка HTTP 500 Internal Server Error, то ничего не поделать, меняйте аккаунт (желательно на регион, где Antigravity официально работает или куплена платная подписка), платная утилита также её не решала.
 
 ## 🌟 Возможности
 - Автоматический поиск установленного Antigravity в стандартных путях и реестре Windows.
