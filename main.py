@@ -470,6 +470,7 @@ def main():
     while True:
         print(color("  1. Apply patch", COLOR_GREEN))
         print(color("  2. Restore from backup", COLOR_YELLOW))
+        print(color("  3. Open GitHub repository", COLOR_CYAN))
         print(color("  0. Exit", COLOR_RED))
         
         choice = input(color("\n  > ", COLOR_CYAN, COLOR_BOLD)).strip()
@@ -485,6 +486,13 @@ def main():
             do_patch(main_js_path, show_search_line=searched)
         elif choice == "2":
             do_restore(main_js_path, show_search_line=searched)
+        elif choice == "3":
+            import webbrowser
+            print_target_info(main_js_path, show_search_line=searched)
+            print()
+            url = "https://github.com/AvenCores/open-antigravity-unlock"
+            webbrowser.open(url)
+            print(f"  [+] Opening: {color(url, COLOR_CYAN)}")
         else:
             print("  [!] Invalid choice")
         print()
