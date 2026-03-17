@@ -287,29 +287,40 @@ def file_size(path):
     except Exception:
         return 0
 
+def format_size_mb(path):
+    size_mb = file_size(path) / 1024 / 1024
+    return f"{size_mb:.1f} MB"
+
+def prompt_yn(question):
+    question = question.rstrip()
+    prompt = f"  [?] {question} ({color('y', COLOR_GREEN)}/{color('n', COLOR_RED)}): "
+    return input(prompt).strip().lower()
+
 def do_patch(main_js_path):
     # --- Проверка минимальной версии ---
     ver_ok, ver_str = check_ag_version(main_js_path)
 
     if ver_str is not None:
-        print(f"  [*] Antigravity version: {ver_str}")
+        print(f"  [*] Antigravity version: {color(ver_str, COLOR_GREEN)}")
 
     if ver_ok is False:
         # Версия определена, но ниже минимальной
         print(color(f"  [!] Unsupported version: {ver_str}", COLOR_RED))
         print(color(f"  [!] Minimum required: {MIN_AG_VERSION}", COLOR_RED))
-        print(f"  [i] Please update Antigravity and try again.")
-        return
+        print("  [i] Please update Antigravity and try again.")
+        c = prompt_yn("Proceed anyway?")
+        if c != 'y':
+            return
     elif ver_ok is None and ver_str is None:
         # Версия в реестре не найдена
         print(color("  [!] Could not detect Antigravity version (registry key not found).", COLOR_YELLOW))
-        c = input(f"  [?] Proceed without version check? (y/n): ").strip().lower()
+        c = prompt_yn("Proceed without version check?")
         if c != 'y':
             return
     elif ver_ok is None and ver_str is not None:
         # Версия найдена, но не удалось распарсить
         print(color(f"  [!] Could not parse version string: {ver_str}", COLOR_YELLOW))
-        c = input(f"  [?] Proceed anyway? (y/n): ").strip().lower()
+        c = prompt_yn("Proceed anyway?")
         if c != 'y':
             return
     # else: ver_ok is True — версия подходит, продолжаем
@@ -323,7 +334,7 @@ def do_patch(main_js_path):
 
     if is_already_patched(content):
         print("  [i] File appears already patched.")
-        c = input("  [?] Apply anyway? (y/n): ").strip().lower()
+        c = prompt_yn("Apply anyway?")
         if c != 'y':
             return
 
@@ -429,8 +440,13 @@ def main():
         input("\n  Press Enter to exit...")
         return
 
-    print(f"  [*] Target: {main_js_path}")
-    print(f"  [*] Size:   {file_size(main_js_path) / 1024 / 1024:.1f} MB")
+    print(f"  [*] Target: {color(main_js_path, COLOR_CYAN)}")
+    ver_str = get_ag_version(main_js_path)
+    if ver_str:
+        print(f"  [*] Antigravity version: {color(ver_str, COLOR_GREEN)}")
+    else:
+        print(color("  [!] Antigravity version: not detected", COLOR_YELLOW))
+    print(f"  [*] Size:   {color(format_size_mb(main_js_path), COLOR_GREEN)}")
     print()
 
     while True:
