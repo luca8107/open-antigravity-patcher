@@ -49,14 +49,21 @@ def clear_screen():
     os.system("cls" if os.name == "nt" else "clear")
 
 def print_banner():
+    C = COLOR_CYAN
+    B = COLOR_BOLD
+    G = COLOR_GREEN
+    Y = COLOR_YELLOW
+    R = COLOR_RESET if USE_COLOR else ""
+    def c(text, *styles): return color(text, *styles)
+
     print()
-    print("  ╔═══════════════════════════════════════════════╗")
-    print("  ║  Open AG Patcher v" + VERSION + "                       ║")
-    print("  ║  Region bypass for Antigravity                ║")
-    print("  ║  Clean • No keys • No telemetry               ║")
-    print("  ║  Telegram Channel: t.me/avencoresyt           ║")
-    print("  ║  YouTube Channel: youtube.com/@avencores      ║")
-    print("  ╚═══════════════════════════════════════════════╝")
+    print(c("  ╔═══════════════════════════════════════════════╗", C, B))
+    print(c("  ║  ", C, B) + c("Open AG Patcher", B) + c(" v", C) + c(VERSION, G, B) + c("                       ║", C, B))
+    print(c("  ║  ", C, B) + c("Region bypass for Antigravity", C) + c("                ║", C, B))
+    print(c("  ║  ", C, B) + c("Clean", G) + c(" • ", C) + c("No keys", G) + c(" • ", C) + c("No telemetry", G) + c("               ║", C, B))
+    print(c("  ║  ", C, B) + c("Telegram Channel: ", Y) + c("t.me/avencoresyt", G) + c("           ║", C, B))
+    print(c("  ║  ", C, B) + c("YouTube Channel:  ", Y) + c("youtube.com/@avencores", G) + c("     ║", C, B))
+    print(c("  ╚═══════════════════════════════════════════════╝", C, B))
     print()
 
 def is_admin():
