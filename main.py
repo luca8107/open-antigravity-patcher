@@ -558,6 +558,18 @@ if __name__ == "__main__":
             sys.exit(0)
         else:
             print("  [!] Could not elevate privileges. The script may fail to modify files.")
+    elif os.name == 'posix' and not is_admin():
+        print("  [!] Root access is required to patch files in /usr/share/antigravity.")
+        c = input(f"  [?] Re-launch with sudo? ({color('y', COLOR_GREEN)}/{color('n', COLOR_RED)}): ").strip().lower()
+        if c == 'y':
+            try:
+                os.execvp("sudo", ["sudo", sys.executable] + sys.argv)
+            except Exception as e:
+                print(f"  [!] Failed to re-launch with sudo: {e}")
+                sys.exit(1)
+        else:
+            print(color("  [!] Proceeding without root. Write errors are possible.", COLOR_YELLOW))
+            print()
     
     try:
         main()
