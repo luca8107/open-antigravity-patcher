@@ -1,1 +1,3 @@
-pyinstaller --onefile --uac-admin --icon=icon.ico --name="Open AG Patcher" main.py
+Windows: pyinstaller --onefile --uac-admin --icon=icon.ico --name="Open_AG_Patcher_Windows" main.py
+
+Linux pyinstaller --onefile --icon=icon.ico --name="Open_AG_Patcher_Linux" main.py

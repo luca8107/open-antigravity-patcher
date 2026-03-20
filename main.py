@@ -6,7 +6,7 @@ import time
 import ctypes
 from packaging.version import Version
 
-VERSION = "1.0.2"
+VERSION = "1.0.3"
 MIN_AG_VERSION = "1.20.5"
 USE_COLOR = False
 
@@ -238,6 +238,91 @@ def check_ag_version(main_js_path):
     except Exception:
         return None, ver_str
 
+def parse_version_safe(ver_str):
+    if not ver_str:
+        return None
+    try:
+        return Version(ver_str)
+    except Exception:
+        return None
+
+def backup_version_meta_path(backup_path):
+    return backup_path + ".version"
+
+def load_backup_version(backup_path):
+    meta_path = backup_version_meta_path(backup_path)
+    if not os.path.exists(meta_path):
+        return None
+    try:
+        with open(meta_path, "r", encoding="utf-8") as f:
+            ver_str = f.read().strip()
+        return ver_str or None
+    except Exception:
+        return None
+
+def save_backup_version(backup_path, version_str):
+    if not version_str:
+        return
+    meta_path = backup_version_meta_path(backup_path)
+    try:
+        with open(meta_path, "w", encoding="utf-8") as f:
+            f.write(version_str.strip())
+    except Exception as e:
+        print(color(f"  [!] Could not save backup version metadata: {e}", COLOR_YELLOW))
+
+def format_bytes(size_bytes):
+    if size_bytes >= 1024 * 1024:
+        return f"{size_bytes / 1024 / 1024:.1f} MB"
+    if size_bytes >= 1024:
+        return f"{size_bytes / 1024:.1f} KB"
+    return f"{size_bytes} B"
+
+def warn_about_unsafe_backup(main_js_path, installed_version_str=None, current_content=None):
+    backup_path = main_js_path + ".bak"
+    if not os.path.exists(backup_path):
+        return True, False
+
+    installed_version_str = installed_version_str or get_ag_version(main_js_path)
+    installed_version = parse_version_safe(installed_version_str)
+    backup_version_str = load_backup_version(backup_path)
+    backup_version = parse_version_safe(backup_version_str)
+    backup_size = file_size(backup_path)
+    current_size = file_size(main_js_path)
+    warnings = []
+
+    if installed_version and backup_version and backup_version < installed_version:
+        warnings.append(f"backup version {backup_version_str} is older than installed {installed_version_str}")
+
+    try:
+        with open(backup_path, "r", encoding="utf-8") as f:
+            backup_content = f.read()
+    except Exception as e:
+        print(color(f"  [!] Backup check error: {e}", COLOR_YELLOW))
+        return False, False
+
+    if backup_size <= 2048 or len(backup_content.strip()) <= 512:
+        warnings.append(f"backup size is only {format_bytes(backup_size)} and it looks almost empty")
+    elif current_size and backup_size < max(4096, current_size // 10):
+        warnings.append(
+            f"backup is much smaller than current main.js ({format_bytes(backup_size)} vs {format_bytes(current_size)})"
+        )
+
+    if current_content is not None:
+        if backup_content == current_content:
+            if installed_version_str and not backup_version_str:
+                save_backup_version(backup_path, installed_version_str)
+        elif not is_already_patched(current_content):
+            warnings.append("backup does not match the current unpatched main.js")
+
+    if not warnings:
+        return True, False
+
+    for warning in warnings:
+        print(color(f"  [!] Backup warning: {warning}", COLOR_YELLOW))
+    print(color("  [!] Restoring this backup may break Antigravity.", COLOR_YELLOW))
+    print(color(f"  [i] Backup kept: {os.path.basename(backup_path)}", COLOR_YELLOW))
+    return True, True
+
 def apply_patches(content):
     results =[]
     original = content
@@ -366,6 +451,12 @@ def prompt_yn(question):
     prompt = f"  [?] {question} ({color('y', COLOR_GREEN)}/{color('n', COLOR_RED)}): "
     return input(prompt).strip().lower()
 
+def redraw_main_screen(main_js_path, show_search_line=False):
+    clear_screen()
+    print_banner()
+    print_target_info(main_js_path, show_search_line=show_search_line)
+    print()
+
 def do_patch(main_js_path, show_search_line=False):
     # --- Проверка минимальной версии ---
     ver_ok, ver_str = check_ag_version(main_js_path)
@@ -411,12 +502,17 @@ def do_patch(main_js_path, show_search_line=False):
             print_target_info(main_js_path, show_search_line=show_search_line)
             return
 
+    backup_ok, _ = warn_about_unsafe_backup(main_js_path, installed_version_str=ver_str, current_content=content)
+    if not backup_ok:
+        return
+
     backup_path = main_js_path + ".bak"
     if not os.path.exists(backup_path):
         print("  [*] Creating backup...")
         try:
             with open(backup_path, "w", encoding="utf-8") as f:
                 f.write(content)
+            save_backup_version(backup_path, ver_str)
             print(f"  [+] Backup: {os.path.basename(backup_path)}")
         except Exception as e:
             print(f"  [!] Backup error: {e}")
@@ -461,12 +557,29 @@ def do_patch(main_js_path, show_search_line=False):
     print("  Restart Antigravity and sign in.")
 
 def do_restore(main_js_path, show_search_line=False):
+    current_content = None
+    try:
+        with open(main_js_path, "r", encoding="utf-8") as f:
+            current_content = f.read()
+    except Exception:
+        pass
+
+    backup_ok, backup_has_warnings = warn_about_unsafe_backup(main_js_path, current_content=current_content)
+    if not backup_ok:
+        return
+
     backup_path = main_js_path + ".bak"
     try:
         with open(backup_path, "r", encoding="utf-8") as f:
             data = f.read()
     except Exception as e:
         print(f"  [!] Backup not found: {backup_path}")
+        return
+
+    restore_question = "Restore this backup anyway?" if backup_has_warnings else "Restore backup?"
+    c = prompt_yn(restore_question)
+    if c != 'y':
+        print("  [i] Restore cancelled.")
         return
 
     try:
@@ -519,8 +632,7 @@ def main():
         input("\n  Press Enter to exit...")
         return
 
-    print_target_info(main_js_path, show_search_line=False)
-    print()
+    redraw_main_screen(main_js_path, show_search_line=searched)
 
     while True:
         print(color("  1. Apply patch", COLOR_GREEN))
@@ -534,6 +646,7 @@ def main():
         if choice in ("0", ""):
             return
 
+        handled = True
         clear_screen()
         print_banner()
 
@@ -549,8 +662,13 @@ def main():
             webbrowser.open(url)
             print(f"  [+] Opening: {color(url, COLOR_CYAN)}")
         else:
+            handled = False
             print("  [!] Invalid choice")
         print()
+
+        if handled:
+            input("  Press Enter to return to menu...")
+            redraw_main_screen(main_js_path, show_search_line=searched)
 
 if __name__ == "__main__":
     if os.name == 'nt' and not is_admin():
